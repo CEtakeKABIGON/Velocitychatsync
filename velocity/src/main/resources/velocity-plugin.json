@@ -1,0 +1,8 @@
+{
+  "id": "velocitychatsync",
+  "name": "VelocitychatSync",
+  "version": "1.0",
+  "main": "org.cetake.velocitychatsyncVelocity.Velocitychatsync",
+  "authors": ["CE_take"],
+  "description": "A plugin to sync chat between Velocity and Discord."
+}

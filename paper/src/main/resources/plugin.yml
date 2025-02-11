@@ -1,0 +1,4 @@
+name: velocitychatsync
+version: '1.0-SNAPSHOT'
+main: org.cetake.velocitychatsyncPaper.Velocitychatsync
+api-version: '1.21'
