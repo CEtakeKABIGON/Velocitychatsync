@@ -1,0 +1,5 @@
+name: velocitychatsync
+version: '1.0-SNAPSHOT'
+main: org.cetake.velocitychatsyncFolia.Velocitychatsync
+api-version: '1.21'
+folia-supported: true

@@ -1,0 +1,2 @@
+rootProject.name = 'velocitychatsync'
+include 'paper', 'velocity', 'folia'

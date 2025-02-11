@@ -1,0 +1,17 @@
+dependencies {
+    compileOnly 'dev.folia:folia-api:1.21.4-R0.1-SNAPSHOT' // 最新版を確認して適宜変更
+    compileOnly 'org.jetbrains:annotations:24.0.1' // 任意。アノテーション用
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
+
+tasks.jar {
+    archiveFileName.set('velocitychatsync-folia-1.0.jar')
+}
