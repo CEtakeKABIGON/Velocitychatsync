@@ -1,0 +1,8 @@
+PlayerChatMessage: "<yellow>[</yellow><AQUA>%s</AQUA><yellow>]</yellow> <%s> %s"
+PlayerJoinMessage: "<AQUA>%s</AQUA> に <AQUA>%s</AQUA> が入室しました"
+PlayerQuitMessage: "<yellow>%sが退室しました</yellow>"
+PlayerChatMessageToDiscord: "<yellow>[</yellow><AQUA>%s</AQUA><yellow>]</yellow> <%s> %s"
+PlayerJoinMessageToDiscord: "<AQUA>%s</AQUA> に <AQUA>%s</AQUA> が入室しました"
+PlayerQuitMessageToDiscord: "<yellow>%sが退室しました</yellow>"
+DiscordMessageToPlayer: "<yellow>[</yellow><green>%s</green><yellow>]</yellow> <%s> %s"
+DiscordMessageToDiscord: "<yellow>[</yellow><green>%s</green><yellow>]</yellow> <%s> %s"

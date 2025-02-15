@@ -124,7 +124,7 @@ public class DiscordConnect extends ListenerAdapter {
 
             // ChatManager のインスタンスが存在する場合のみブロードキャストを実行
             if (chatManager != null) {
-                chatManager.broadcastMessage(serverName, username, content, channelId);
+                chatManager.DiscordBroadcastMessage(serverName, username, content, channelId);
             } else {
                 logger.warn("chatManager is null. Unable to broadcast Discord message to Minecraft servers.");
             }

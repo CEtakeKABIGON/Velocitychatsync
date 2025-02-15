@@ -18,7 +18,8 @@ public class ConfigManager {
     private List<String> servers; // 起動時に読み込んで保存
     private String discordToken; // Discord Bot のトークン
     private List<DiscordServer> discordServers; // Discord サーバーの情報
-    private static boolean discordEnable; // Discord 同期の有効化設定
+    private static boolean discordEnable;
+    private static boolean messageCustom;// Discord 同期の有効化設定
 
     public ConfigManager(Logger logger) {
         this.logger = logger;
@@ -48,6 +49,8 @@ public class ConfigManager {
             try (InputStream input = new FileInputStream(configFile.toFile())) {
                 Yaml yaml = new Yaml();
                 Map<String, Object> configData = yaml.load(input);
+
+                messageCustom = (boolean)configData.get("messageCustom");
 
                 // Minecraft の `servers` を取得
                 Object serversObj = configData.get("servers");
@@ -109,6 +112,8 @@ public class ConfigManager {
         return discordEnable;
     }
 
+    public boolean isMessageCustom() { return messageCustom;}
+
     public static class DiscordServer {
         private final String serverName;
         private final String channelId;
@@ -132,4 +137,3 @@ public class ConfigManager {
         }
     }
 }
-

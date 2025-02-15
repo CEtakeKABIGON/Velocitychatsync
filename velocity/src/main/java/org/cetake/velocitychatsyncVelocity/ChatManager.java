@@ -8,6 +8,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.slf4j.Logger;
 import javax.inject.Inject;
 import java.nio.charset.StandardCharsets;
@@ -20,14 +21,16 @@ public class ChatManager {
     private final List<String> registeredServers; // 登録されたサーバー
     private final DiscordConnect discordConnect;
     private final ConfigManager configManager;
+    private final MessageManager messageManager;
 
     @Inject
-    public ChatManager(ProxyServer server, Logger logger, ConfigManager configManager, DiscordConnect discordConnect) {
+    public ChatManager(ProxyServer server, Logger logger, ConfigManager configManager, MessageManager messageManager, DiscordConnect discordConnect) {
         this.server = server;
         this.logger = logger;
         this.registeredServers = configManager.getServers(); // 登録されたサーバーのリストを取得
         this.discordConnect = discordConnect;
         this.configManager = configManager;
+        this.messageManager = messageManager;
     }
 
     @Subscribe
@@ -62,7 +65,7 @@ public class ChatManager {
 
                         String message = parts[2];
                         // チャットメッセージを転送
-                        broadcastMessage(serverName, playerName, message, null);
+                        broadcastMessage(serverName, playerName, message);
                         break;
 
                     case "PlayerJoin":
@@ -73,7 +76,7 @@ public class ChatManager {
                         logger.warn("Unknown action from {}: {}", serverName, action);
                 }
             } else {
-                logger.warn("Received message from unknown source: " + receivedMessage);
+                logger.warn("Received message from unknown source: {}", receivedMessage);
             }
 
         } catch (Exception e) {
@@ -90,13 +93,55 @@ public class ChatManager {
     }
 
     // チャットの転送
-    void broadcastMessage(String serverName, String playerName, String message, String channelId) {
+    void broadcastMessage(String serverName, String playerName, String message) {
         for (RegisteredServer server : server.getAllServers()) {
             // serverName と一致するサーバーには送信しない
             if (registeredServers.contains(server.getServerInfo().getName()) && !server.getServerInfo().getName().equals(serverName)) {
-                String formattedMessage = String.format("[%s] <%s> %s", serverName, playerName, message);
+                MiniMessage mm = MiniMessage.miniMessage();
+                String safeServerName = mm.escapeTags(serverName);
+                String safePlayerName = mm.escapeTags(playerName);
+                String safeMessage = mm.escapeTags(message);
+                String formattedMessage;
+                if (configManager.isMessageCustom()) {
+
+                    // プレイヤーの入力をエスケープ
+
+                    formattedMessage = String.format(messageManager.getPlayerChatMessage(), safeServerName, safePlayerName, safeMessage);
+
+                }else {
+                    // プレイヤーの入力をエスケープ
+
+                    formattedMessage = String.format("<yellow>[</yellow><AQUA>%s</AQUA><yellow>]</yellow> <%s> %s", safeServerName, safePlayerName, safeMessage);
+                }
                 sendPluginMessage(server, formattedMessage);
             }
+        }
+        if (configManager.isDiscordEnabled()) {
+            String formattedMessage = String.format("[%s] <%s> %s", serverName, playerName, message);
+            discordConnect.sendToOtherChannels(null, formattedMessage);
+        }
+    }
+
+    void DiscordBroadcastMessage(String serverName, String playerName, String message, String channelId) {
+        for (RegisteredServer server : server.getAllServers()) {
+            // serverName と一致するサーバーには送信しない
+            MiniMessage mm = MiniMessage.miniMessage();
+            String safeServerName = mm.escapeTags(serverName);
+            String safePlayerName = mm.escapeTags(playerName);
+            String safeMessage = mm.escapeTags(message);
+            String formattedMessage;
+            if (configManager.isMessageCustom()) {
+
+                // プレイヤーの入力をエスケープ
+
+                formattedMessage = String.format(messageManager.getDiscordMessageToPlayer(), safeServerName, safePlayerName, safeMessage);
+
+            }else {
+                // プレイヤーの入力をエスケープ
+
+                formattedMessage = String.format("<yellow>[</yellow><green>%s</green><yellow>]</yellow> <%s> %s", safeServerName, safePlayerName, safeMessage);
+            }
+            sendPluginMessage(server, formattedMessage);
         }
         if (configManager.isDiscordEnabled()) {
             String formattedMessage = String.format("[%s] <%s> %s", serverName, playerName, message);
@@ -107,7 +152,18 @@ public class ChatManager {
     // 入室ログの転送
     private void broadcastJoinMessage(String serverName, String playerName) {
         if (registeredServers.contains(serverName)) {
-            String message = String.format("%s に %s が入室しました", serverName, playerName);
+            MiniMessage mm = MiniMessage.miniMessage();
+            String safeServerName = mm.escapeTags(serverName);
+            String safePlayerName = mm.escapeTags(playerName);
+            String message;
+            if (configManager.isMessageCustom()) {
+
+                message = String.format(messageManager.getPlayerJoinMessage(), safeServerName, safePlayerName);
+
+            }else {
+
+                message = String.format("<AQUA>%s</AQUA> に <AQUA>%s</AQUA> が入室しました", safeServerName, safePlayerName);
+            }
             broadcastToRegisteredServers(message);
         }
         if (configManager.isDiscordEnabled()) {
@@ -122,7 +178,15 @@ public class ChatManager {
         String playerName = event.getPlayer().getUsername();
         for (RegisteredServer server : server.getAllServers()) {
             if (server.getPlayersConnected().contains(event.getPlayer()) && registeredServers.contains(server.getServerInfo().getName())) {
-                String message = String.format("%sが退室しました", playerName);
+                MiniMessage mm = MiniMessage.miniMessage();
+                String safePlayerName = mm.escapeTags(playerName);
+                String message;
+                if (configManager.isMessageCustom()){
+                    message = String.format(messageManager.getPlayerQuitMessage(), safePlayerName);
+
+                }else {
+                    message = String.format("<yellow>%sが退室しました</yellow>", safePlayerName);
+                }
                 broadcastToRegisteredServers(message);
             }
         }

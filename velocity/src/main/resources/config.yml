@@ -1,3 +1,6 @@
+#メッセージのカスタマイズ 色変更のみ
+messageCustom: false
+
 discord:
       enable: false #Discord連携の有効化
       token: "YOUR_DISCORD_BOT_TOKEN" #DiscordBotのTokenを入力

@@ -1,5 +1,6 @@
 package org.cetake.velocitychatsyncVelocity;
 
+import com.mojang.brigadier.Message;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.event.Subscribe;
@@ -11,19 +12,21 @@ import org.slf4j.Logger;
 import javax.inject.Inject;
 import java.util.List;
 
-@Plugin(id = "velocitychatsync", name = "VelocityChatSync", version = "1.0")
+@Plugin(id = "velocitychatsync", name = "VelocityChatSync", version = "2.0")
 public class Velocitychatsync {
     private final Logger logger;
     private final ConfigManager configManager;
     private final ProxyServer server;
     private DiscordConnect discordConnect;
     private ChatManager chatManager;
+    private MessageManager messageManager;
 
     @Inject
     public Velocitychatsync(ProxyServer server, Logger logger) {
         this.server = server;
         this.logger = logger;
         this.configManager = new ConfigManager(logger);
+        this.messageManager = new MessageManager(logger);
     }
 
     @Subscribe
@@ -32,7 +35,7 @@ public class Velocitychatsync {
 
         // ConfigManager を生成
         this.discordConnect = new DiscordConnect(server, logger, configManager);
-        this.chatManager = new ChatManager(server, logger, configManager, discordConnect);
+        this.chatManager = new ChatManager(server, logger, configManager, messageManager, discordConnect);
         server.getChannelRegistrar().register(MinecraftChannelIdentifier.create("velocitychatsync", "main"));
 
         // イベントリスナーの登録

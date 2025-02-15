@@ -1,6 +1,7 @@
 package org.cetake.velocitychatsyncPaper;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -32,7 +33,9 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
         if (!channel.equals("velocitychatsync:main")) return;
 
         String receivedMessage = new String(message, StandardCharsets.UTF_8);
-        Bukkit.broadcast(Component.text(receivedMessage)); // Velocity から受け取ったメッセージをブロードキャスト
+        MiniMessage mm = MiniMessage.miniMessage();
+        Component formatMessage = mm.deserialize(receivedMessage);
+        Bukkit.broadcast(formatMessage); // Velocity から受け取ったメッセージをブロードキャスト
     }
 
     @EventHandler
