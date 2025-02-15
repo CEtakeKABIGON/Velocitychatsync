@@ -29,7 +29,7 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
     }
 
     @Override
-    public void onPluginMessageReceived(String channel, @NotNull Player player, byte[] message) {
+    public void onPluginMessageReceived(String channel, @NotNull Player player, byte @NotNull [] message) {
         if (!channel.equals("velocitychatsync:main")) return;
 
         String receivedMessage = new String(message, StandardCharsets.UTF_8);
@@ -50,10 +50,15 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
 
     @EventHandler
     public void onAsyncChatEvent(AsyncChatEvent event) {
+        if (!event.viewers().contains(event.getPlayer())) {
+            return; // 自分の発言でない場合は無視
+        }
         Player player = event.getPlayer();
         String plainMessage = PlainTextComponentSerializer.plainText().serialize(event.message());
         sendToVelocity(player.getName() + "|" + plainMessage);
     }
+
+
 
     private void sendToVelocity(String data) {
         String message = "Chat" + "|" + data;

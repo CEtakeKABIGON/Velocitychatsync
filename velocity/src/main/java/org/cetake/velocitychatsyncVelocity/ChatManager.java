@@ -103,14 +103,10 @@ public class ChatManager {
                 String safeMessage = mm.escapeTags(message);
                 String formattedMessage;
                 if (configManager.isMessageCustom()) {
-
                     // プレイヤーの入力をエスケープ
-
                     formattedMessage = String.format(messageManager.getPlayerChatMessage(), safeServerName, safePlayerName, safeMessage);
-
                 }else {
                     // プレイヤーの入力をエスケープ
-
                     formattedMessage = String.format("<yellow>[</yellow><AQUA>%s</AQUA><yellow>]</yellow> <%s> %s", safeServerName, safePlayerName, safeMessage);
                 }
                 sendPluginMessage(server, formattedMessage);
@@ -183,11 +179,11 @@ public class ChatManager {
                 String message;
                 if (configManager.isMessageCustom()){
                     message = String.format(messageManager.getPlayerQuitMessage(), safePlayerName);
-
+                    broadcastToRegisteredServers(message);
                 }else {
                     message = String.format("<yellow>%sが退室しました</yellow>", safePlayerName);
+                    broadcastToRegisteredServers(message);
                 }
-                broadcastToRegisteredServers(message);
             }
         }
         if (configManager.isDiscordEnabled()) {

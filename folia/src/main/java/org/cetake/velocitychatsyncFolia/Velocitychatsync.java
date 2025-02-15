@@ -31,8 +31,6 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
 
         String receivedMessage = new String(message, StandardCharsets.UTF_8);
 
-        Bukkit.getLogger().info(receivedMessage);
-
         MiniMessage mm = MiniMessage.miniMessage();
         Component formatMessage = mm.deserialize(receivedMessage);
 
@@ -56,6 +54,9 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
 
     @EventHandler
     public void onAsyncChatEvent(AsyncChatEvent event) {
+        if (!event.viewers().contains(event.getPlayer())) {
+            return; // 自分の発言でない場合は無視
+        }
         Player player = event.getPlayer();
         String plainMessage = PlainTextComponentSerializer.plainText().serialize(event.message());
 

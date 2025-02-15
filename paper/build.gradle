@@ -12,5 +12,5 @@ processResources {
 }
 
 tasks.jar {
-    archiveFileName.set('velocitychatsync-paper-1.0.jar')
+    archiveFileName.set('velocitychatsync-paper-2.0.jar')
 }
