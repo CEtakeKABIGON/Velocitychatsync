@@ -15,7 +15,6 @@ import java.util.List;
 public class Velocitychatsync {
     private final Logger logger;
     private final ConfigManager configManager;
-    private final List<String> servers;
     private final ProxyServer server;
     private DiscordConnect discordConnect;
     private ChatManager chatManager;
@@ -25,7 +24,6 @@ public class Velocitychatsync {
         this.server = server;
         this.logger = logger;
         this.configManager = new ConfigManager(logger);
-        this.servers = configManager.getServers();
     }
 
     @Subscribe
