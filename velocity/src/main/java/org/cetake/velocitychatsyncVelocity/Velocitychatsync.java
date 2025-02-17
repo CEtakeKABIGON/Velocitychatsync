@@ -1,6 +1,5 @@
 package org.cetake.velocitychatsyncVelocity;
 
-import com.mojang.brigadier.Message;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.event.Subscribe;
@@ -10,7 +9,6 @@ import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
-import java.util.List;
 
 @Plugin(id = "velocitychatsync", name = "VelocityChatSync", version = "2.0")
 public class Velocitychatsync {
@@ -34,7 +32,7 @@ public class Velocitychatsync {
         logger.info("VelocityChatsync Plugin Enabled!");
 
         // ConfigManager を生成
-        this.discordConnect = new DiscordConnect(server, logger, configManager);
+        this.discordConnect = new DiscordConnect(logger, configManager);
         this.chatManager = new ChatManager(server, logger, configManager, messageManager, discordConnect);
         server.getChannelRegistrar().register(MinecraftChannelIdentifier.create("velocitychatsync", "main"));
 

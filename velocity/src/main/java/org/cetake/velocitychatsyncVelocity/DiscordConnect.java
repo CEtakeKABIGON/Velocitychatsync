@@ -1,6 +1,5 @@
 package org.cetake.velocitychatsyncVelocity;
 
-import com.velocitypowered.api.proxy.ProxyServer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -19,15 +18,14 @@ import java.util.Optional;
 
 public class DiscordConnect extends ListenerAdapter {
     private final Logger logger;
-    private final ProxyServer server;
+
     private final ConfigManager configManager;
     private JDA jda;
     // ChatManager はセッターで設定する
     private ChatManager chatManager;
 
     @Inject
-    public DiscordConnect(ProxyServer server, Logger logger, ConfigManager configManager) {
-        this.server = server;
+    public DiscordConnect(Logger logger, ConfigManager configManager) {
         this.logger = logger;
         this.configManager = configManager;
     }
@@ -115,6 +113,16 @@ public class DiscordConnect extends ListenerAdapter {
             String username = message.getAuthor().getName();
             String channelId = event.getChannel().getId();
 
+            // 設定されたチャンネルIDのリストを取得
+            List<String> allowedChannelIds = configManager.getDiscordServers().stream()
+                    .map(ConfigManager.DiscordServer::getChannelId)
+                    .toList();
+
+            // 許可されたチャンネルでなければ無視
+            if (!allowedChannelIds.contains(channelId)) {
+                return;
+            }
+
             // 対応するサーバー名を取得
             Optional<String> serverNameOpt = configManager.getDiscordServers().stream()
                     .filter(discordServer -> discordServer.getChannelId().equals(channelId))
@@ -130,5 +138,6 @@ public class DiscordConnect extends ListenerAdapter {
             }
         }
     }
+
 
 }

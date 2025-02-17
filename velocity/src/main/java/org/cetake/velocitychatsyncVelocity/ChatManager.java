@@ -1,11 +1,11 @@
 package org.cetake.velocitychatsyncVelocity;
 
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.event.player.ServerPostConnectEvent;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -34,54 +34,16 @@ public class ChatManager {
     }
 
     @Subscribe
-    public void onPluginMessage(PluginMessageEvent event) {
-        logger.info("PluginMessageEvent triggered");
+    public void onChat(PlayerChatEvent event) {
+        Player player = event.getPlayer();
+        String message = event.getMessage();
 
-        if (!event.getIdentifier().getId().equals(CHANNEL)) {
-            return;
-        }
-
-        try {
-            String receivedMessage = new String(event.getData(), StandardCharsets.UTF_8);
-
-            if (event.getSource() instanceof ServerConnection connection) {
-                RegisteredServer sourceServer = connection.getServer();
-                String serverName = sourceServer.getServerInfo().getName();
-
-                // 送信されたデータを解析
-                String[] parts = receivedMessage.split("\\|", 3);
-                if (parts.length < 2) {
-                    return;
-                }
-
-                String action = parts[0];
-                String playerName = parts[1];
-
-                switch (action) {
-                    case "Chat":
-                        if (parts.length < 3) {
-                            return;
-                        }
-
-                        String message = parts[2];
-                        // チャットメッセージを転送
-                        broadcastMessage(serverName, playerName, message);
-                        break;
-
-                    case "PlayerJoin":
-                        broadcastJoinMessage(serverName, playerName);
-                        break;
-
-                    default:
-                        logger.warn("Unknown action from {}: {}", serverName, action);
-                }
-            } else {
-                logger.warn("Received message from unknown source: {}", receivedMessage);
-            }
-
-        } catch (Exception e) {
-            logger.error("Failed to handle plugin message", e);
-        }
+        // 発言したサーバーを取得
+        player.getCurrentServer().ifPresent(server -> {
+            String serverName = server.getServerInfo().getName();
+            String playerName = player.getUsername();
+            broadcastMessage(serverName, playerName, message);
+        });
     }
 
     @Subscribe
@@ -104,7 +66,10 @@ public class ChatManager {
                 String formattedMessage;
                 if (configManager.isMessageCustom()) {
                     // プレイヤーの入力をエスケープ
-                    formattedMessage = String.format(messageManager.getPlayerChatMessage(), safeServerName, safePlayerName, safeMessage);
+                    formattedMessage = messageManager.getPlayerChatMessage()
+                            .replace("{$Server}",serverName)
+                            .replace("{$Player}",safePlayerName)
+                            .replace("{$Message}",safeMessage);
                 }else {
                     // プレイヤーの入力をエスケープ
                     formattedMessage = String.format("<yellow>[</yellow><AQUA>%s</AQUA><yellow>]</yellow> <%s> %s", safeServerName, safePlayerName, safeMessage);
@@ -130,7 +95,10 @@ public class ChatManager {
 
                 // プレイヤーの入力をエスケープ
 
-                formattedMessage = String.format(messageManager.getDiscordMessageToPlayer(), safeServerName, safePlayerName, safeMessage);
+                formattedMessage = messageManager.getDiscordMessageToPlayer()
+                        .replace("{$Server}",serverName)
+                        .replace("{$Player}",safePlayerName)
+                        .replace("{$Message}",safeMessage);
 
             }else {
                 // プレイヤーの入力をエスケープ
@@ -154,7 +122,9 @@ public class ChatManager {
             String message;
             if (configManager.isMessageCustom()) {
 
-                message = String.format(messageManager.getPlayerJoinMessage(), safeServerName, safePlayerName);
+                message = messageManager.getPlayerJoinMessage()
+                        .replace("{$Server}",serverName)
+                        .replace("{$Player}",safePlayerName);
 
             }else {
 
@@ -178,7 +148,8 @@ public class ChatManager {
                 String safePlayerName = mm.escapeTags(playerName);
                 String message;
                 if (configManager.isMessageCustom()){
-                    message = String.format(messageManager.getPlayerQuitMessage(), safePlayerName);
+                    message = messageManager.getPlayerQuitMessage()
+                            .replace("{$Player}",safePlayerName);
                     broadcastToRegisteredServers(message);
                 }else {
                     message = String.format("<yellow>%sが退室しました</yellow>", safePlayerName);
