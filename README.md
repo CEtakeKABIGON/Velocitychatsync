@@ -2,6 +2,8 @@
 DiscordBotを使ってDIscordチャンネルとの同期も可能です  
 メッセージのカスタマイズや色の設定も可能です  
 Velocityに導入し、起動するとconfig.yml MessageCustom.ymlが生成されるので設定して再起動してください  
+
+#congig.yml
   
 messageCustom: false　#メッセージのカスタマイズの有効化  
   
