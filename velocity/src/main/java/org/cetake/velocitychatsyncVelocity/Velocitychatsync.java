@@ -52,7 +52,6 @@ public class Velocitychatsync {
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
         if (discordConnect != null) {
-            discordConnect.sendToOtherChannels("dummy", "🛑 サーバー が停止しました");
             discordConnect.shutdownDiscordBot();
         }
     }

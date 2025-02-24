@@ -64,7 +64,7 @@ public class DiscordConnect extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        sendToOtherChannels("dummy", "✅ サーバー が起動しました**");
+        sendToOtherChannels("dummy", "✅ サーバー が起動しました");
     }
 
     /**
@@ -72,6 +72,7 @@ public class DiscordConnect extends ListenerAdapter {
      */
     public void shutdownDiscordBot() {
         if (jda != null) {
+            sendToOtherChannels("dummy", "🛑 サーバー が停止しました");
             jda.shutdown();
             logger.info("Discord bot shutdown successfully.");
         }
