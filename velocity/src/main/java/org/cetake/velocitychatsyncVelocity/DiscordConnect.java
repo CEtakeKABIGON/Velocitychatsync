@@ -3,13 +3,13 @@ package org.cetake.velocitychatsyncVelocity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.slf4j.Logger;
 import javax.inject.Inject;
 import java.awt.*;
@@ -52,9 +52,12 @@ public class DiscordConnect extends ListenerAdapter {
         }
         try {
             jda = JDABuilder.createDefault(token)
-                    .enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
+                    .enableIntents(GatewayIntent.GUILD_MESSAGES,
+                            GatewayIntent.MESSAGE_CONTENT,
+                            GatewayIntent.GUILD_MEMBERS)
                     .addEventListeners(this)
                     .setActivity(Activity.playing("Bot is online!"))
+                    .setMemberCachePolicy(MemberCachePolicy.ALL) // ← これも！
                     .build();
             logger.info("Connected to Discord successfully!");
         } catch (Exception e) {
@@ -111,7 +114,14 @@ public class DiscordConnect extends ListenerAdapter {
         if (event.isFromGuild()) {
             Message message = event.getMessage();
             String content = message.getContentRaw();
-            String username = message.getAuthor().getName();
+            User user = message.getAuthor();
+            Guild guild = event.getGuild();
+            Member member = guild.getMember(user);
+            // ユーザーネーム（Discord全体でのユーザー名）
+            String userName = user.getName();
+            // サーバーネーム（サーバーで設定されたニックネーム）
+            String serverUserName = (member != null) ? member.getEffectiveName() : "未設定";
+
             String channelId = event.getChannel().getId();
 
             // 設定されたチャンネルIDのリストを取得
@@ -133,7 +143,12 @@ public class DiscordConnect extends ListenerAdapter {
 
             // ChatManager のインスタンスが存在する場合のみブロードキャストを実行
             if (chatManager != null) {
-                chatManager.DiscordBroadcastMessage(serverName, username, content, channelId);
+                if (serverUserName.equals("未設定")) {
+                    chatManager.DiscordBroadcastMessage(serverName, userName, content, channelId);
+                }else{
+                    chatManager.DiscordBroadcastMessage(serverName, serverUserName, content, channelId);
+                }
+
             } else {
                 logger.warn("chatManager is null. Unable to broadcast Discord message to Minecraft servers.");
             }
