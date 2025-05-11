@@ -18,6 +18,7 @@ public class Velocitychatsync {
     private DiscordConnect discordConnect;
     private ChatManager chatManager;
     private MessageManager messageManager;
+    private SystemLogManager systemLogManager;
 
     @Inject
     public Velocitychatsync(ProxyServer server, Logger logger) {
@@ -25,6 +26,7 @@ public class Velocitychatsync {
         this.logger = logger;
         this.configManager = new ConfigManager(logger);
         this.messageManager = new MessageManager(logger);
+        this.systemLogManager = new SystemLogManager(logger);
     }
 
     @Subscribe
@@ -39,9 +41,11 @@ public class Velocitychatsync {
         // イベントリスナーの登録
         server.getEventManager().register(this, discordConnect);
         server.getEventManager().register(this, chatManager);
+        server.getEventManager().register(this, systemLogManager);
 
         // DiscordConnect に ChatManager をセットして循環依存を解決
         discordConnect.setChatManager(chatManager);
+        systemLogManager.setChatManager(chatManager);
 
         // DiscordBotの起動
         if (configManager.isDiscordEnabled()) {

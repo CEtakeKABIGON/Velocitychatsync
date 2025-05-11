@@ -5,6 +5,8 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,7 +23,6 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
         // プラグインメッセージチャネルの登録
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "velocitychatsync:main");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "velocitychatsync:main", this);
-
         // イベントリスナーの登録
         this.getServer().getPluginManager().registerEvents(this, this);
     }
@@ -44,5 +45,25 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         event.setQuitMessage(null);
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        String deathMessage = event.getDeathMessage();
+        sendToVelocity("DeathLog", deathMessage);
+    }
+
+    @EventHandler
+    public void onAdvancement(PlayerAdvancementDoneEvent event) {
+        String advancementKey = event.getAdvancement().getKey().getKey();
+        String playerName = event.getPlayer().getName();
+        String sendData = advancementKey + "|" + playerName;
+        sendToVelocity("Advancements", sendData);
+    }
+
+    private void sendToVelocity(String Action, String data) {
+        String message = Action + "|" + data;
+        byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
+        Bukkit.getServer().sendPluginMessage(this, "velocitychatsync:main", messageBytes);
     }
 }

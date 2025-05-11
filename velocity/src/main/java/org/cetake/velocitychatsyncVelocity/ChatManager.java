@@ -14,8 +14,7 @@ import javax.inject.Inject;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class ChatManager {
-    private static final String CHANNEL = "velocitychatsync:main"; // チャンネル名
+public class ChatManager { // チャンネル名
     private final Logger logger;
     private final ProxyServer server;
     private final List<String> registeredServers; // 登録されたサーバー
@@ -55,7 +54,7 @@ public class ChatManager {
     }
 
     // チャットの転送
-    void broadcastMessage(String serverName, String playerName, String message) {
+    public void broadcastMessage(String serverName, String playerName, String message) {
         for (RegisteredServer server : server.getAllServers()) {
             // serverName と一致するサーバーには送信しない
             if (registeredServers.contains(server.getServerInfo().getName()) && !server.getServerInfo().getName().equals(serverName)) {
@@ -173,7 +172,7 @@ public class ChatManager {
     }
 
     // Plugin Message を送信
-    private void sendPluginMessage(RegisteredServer server, String message) {
+    public void sendPluginMessage(RegisteredServer server, String message) {
         MinecraftChannelIdentifier channelIdentifier = MinecraftChannelIdentifier.create("velocitychatsync", "main");
         byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
         server.sendPluginMessage(channelIdentifier, messageBytes);
