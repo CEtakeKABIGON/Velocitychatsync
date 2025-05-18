@@ -16,11 +16,17 @@ public class MessageManager {
     private String PlayerChatMessage;
     private String PlayerJoinMessage;
     private String PlayerQuitMessage;
-    private String PlayerChatMessageToDiscord;
+    private String PlayerAdvancements;
+    private String PlayerDeathLog;
     private String PlayerJoinMessageToDiscord;
     private String PlayerQuitMessageToDiscord;
     private String DiscordMessageToPlayer;
-    private String DiscordMessageToDiscord;
+    private String PlayerAdvancementsToDiscord;
+    private String PlayerDeathLogToDiscord;
+    private String PlayerJoinMessageToDiscordColor;
+    private String PlayerQuitMessageToDiscordColor;
+    private String PlayerAdvancementsToDiscordColor;
+    private String PlayerDeathLogToDiscordColor;
 
     public MessageManager(Logger logger) {
         this.logger = logger;
@@ -29,7 +35,7 @@ public class MessageManager {
         loadMessageCustom();
     }
 
-    private void loadMessageCustom() {
+    public void loadMessageCustom() {
         try {
 
             if (!Files.exists(MessageFile)) {
@@ -50,11 +56,17 @@ public class MessageManager {
                 PlayerChatMessage = (String) messageData.get("PlayerChatMessage");
                 PlayerJoinMessage = (String) messageData.get("PlayerJoinMessage");
                 PlayerQuitMessage = (String) messageData.get("PlayerQuitMessage");
-                PlayerChatMessageToDiscord = (String) messageData.get("PlayerChatMessageToDiscord");
+                PlayerAdvancements = (String) messageData.get("PlayerAdvancements");
+                PlayerDeathLog = (String) messageData.get("PlayerDeathLog");
                 PlayerJoinMessageToDiscord = (String) messageData.get("PlayerJoinMessageToDiscord");
                 PlayerQuitMessageToDiscord = (String) messageData.get("PlayerQuitMessageToDiscord");
+                PlayerAdvancementsToDiscord = (String) messageData.get("PlayerAdvancementsToDiscord");
+                PlayerDeathLogToDiscord = (String) messageData.get("PlayerDeathLogToDiscord");
+                PlayerJoinMessageToDiscordColor = (String) messageData.get("PlayerJoinMessageToDiscordColor");
+                PlayerQuitMessageToDiscordColor = (String) messageData.get("PlayerQuitMessageToDiscordColor");
+                PlayerAdvancementsToDiscordColor = (String) messageData.get("PlayerAdvancementsToDiscordColor");
+                PlayerDeathLogToDiscordColor = (String) messageData.get("PlayerDeathLogToDiscordColor");
                 DiscordMessageToPlayer = (String) messageData.get("DiscordMessageToPlayer");
-                DiscordMessageToDiscord = (String) messageData.get("DiscordMessageToDiscord");
                 logger.info("MessageCustom.yml loaded successfully.");
             }
         } catch (IOException e) {
@@ -65,9 +77,15 @@ public class MessageManager {
     public String getPlayerChatMessage() { return PlayerChatMessage; }
     public String getPlayerJoinMessage() { return PlayerJoinMessage; }
     public String getPlayerQuitMessage() { return PlayerQuitMessage; }
-    public String getPlayerChatMessageToDiscord() { return PlayerChatMessageToDiscord; }
+    public String getPlayerAdvancements() { return PlayerAdvancements; }
+    public String getPlayerDeathLog() { return PlayerDeathLog; }
     public String getPlayerJoinMessageToDiscord() { return PlayerJoinMessageToDiscord; }
     public String getPlayerQuitMessageToDiscord() { return PlayerQuitMessageToDiscord; }
+    public String getPlayerAdvancementsToDiscord() { return PlayerAdvancementsToDiscord; }
+    public String getPlayerDeathLogToDiscord() { return PlayerDeathLogToDiscord; }
+    public String getPlayerJoinMessageToDiscordColor() { return PlayerJoinMessageToDiscordColor; }
+    public String getPlayerQuitMessageToDiscordColor() { return PlayerQuitMessageToDiscordColor; }
+    public String getPlayerAdvancementsToDiscordColor() { return PlayerAdvancementsToDiscordColor; }
+    public String getPlayerDeathLogToDiscordColor() { return PlayerDeathLogToDiscordColor; }
     public String getDiscordMessageToPlayer() { return DiscordMessageToPlayer;}
-    public String getDiscordMessageToDiscord() { return DiscordMessageToDiscord;}
 }

@@ -13,5 +13,5 @@ processResources {
 }
 
 tasks.jar {
-    archiveFileName.set('velocitychatsync-folia-3.0.jar')
+    archiveFileName.set('velocitychatsync-folia-4.0.jar')
 }

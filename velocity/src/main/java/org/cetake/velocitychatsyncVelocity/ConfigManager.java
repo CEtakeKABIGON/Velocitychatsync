@@ -28,7 +28,7 @@ public class ConfigManager {
         loadConfig();
     }
 
-    private void loadConfig() {
+    public void loadConfig() {
         try {
             if (!Files.exists(configDir)) {
                 Files.createDirectories(configDir);

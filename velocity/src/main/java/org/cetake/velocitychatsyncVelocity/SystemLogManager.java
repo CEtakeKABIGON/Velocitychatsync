@@ -5,19 +5,32 @@ import com.velocitypowered.api.event.connection.PluginMessageEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class SystemLogManager {
 
     private static final String CHANNEL = "velocitychatsync:main"; // チャンネル名
+    private final List<String> registeredServers;
+    private final ProxyServer server;
     private final Logger logger;
     ChatManager chatManager;
     DiscordConnect discordConnect;
+    ConfigManager configManager;
+    MessageManager messageManager;
+    private static final String DEFAULT_DISCORD_CHANNEL = "dummy";
+    MiniMessage mm = MiniMessage.miniMessage();
 
-    public SystemLogManager(Logger logger ) {
+    public SystemLogManager(ProxyServer server, Logger logger, ConfigManager configManager, MessageManager messageManager, DiscordConnect discordConnect) {
+        this.server = server;
         this.logger = logger;
+        this.registeredServers = configManager.getServers(); // 登録されたサーバーのリストを取得
+        this.discordConnect = discordConnect;
+        this.configManager = configManager;
+        this.messageManager = messageManager;
     }
 
     public void setChatManager(ChatManager chatManager) {
@@ -50,9 +63,7 @@ public class SystemLogManager {
 
                 switch (action) {
                     case "DeathLog":
-                        // チャットメッセージを転送
-                        chatManager.sendPluginMessage(sourceServer, message);
-                        discordConnect.sendToOtherChannels("dummy", message);
+                        DeathLogMessage(serverName, message, sourceServer);
                         break;
 
                     case "Advancements":
@@ -75,9 +86,68 @@ public class SystemLogManager {
         }
     }
 
+    private void DeathLogMessage(String serverName, String message, RegisteredServer sourceerver) {
+        // チャットメッセージを転送
+        String FormatMessage;
+        String DiscordMessage;
+        String safeServerName = mm.escapeTags(serverName);
+        String safeMessage = mm.escapeTags(message);
+        if(configManager.isMessageCustom()) {
+            FormatMessage = "DeathLog|" + messageManager.getPlayerDeathLog()
+                    .replace("{$Server}", safeServerName)
+                    .replace("{$Message}", safeMessage);
+            DiscordMessage = messageManager.getPlayerDeathLogToDiscord()
+                    .replace("{$Server}", safeServerName)
+                    .replace("{$Message}", safeMessage);
+        }else {
+            FormatMessage = String.format("<yellow>[</yellow><green>%s</green><yellow>]</yellow> %s", serverName, message);
+            DiscordMessage = String.format("[%s] %s", serverName, message);
+        }
+        for (RegisteredServer server : server.getAllServers()) {
+            if (registeredServers.contains(server.getServerInfo().getName()) && !server.getServerInfo().getName().equals(serverName)) {
+                chatManager.sendPluginMessage(server, FormatMessage);
+            }
+        }
+        if(configManager.isDiscordEnabled()) {
+            if (configManager.isMessageCustom()) {
+                discordConnect.sendToOtherChannels(DEFAULT_DISCORD_CHANNEL, DiscordMessage, messageManager.getPlayerDeathLogToDiscordColor());
+            } else {
+                discordConnect.sendToOtherChannels(DEFAULT_DISCORD_CHANNEL, DiscordMessage, "#FFFF00");
+            }
+        }
+    }
+
     private void AdvancementsMessage(String serverName, String playerName, String message, RegisteredServer sourceServer){
-        String FormatMessage = String.format("[%s] %s は 進歩 %s を達成した", serverName, playerName, message);
-        chatManager.sendPluginMessage(sourceServer, FormatMessage);
-        discordConnect.sendToOtherChannels("dummy", FormatMessage);
+        String FormatMessage;
+        String DiscordMessage;
+        String safeServerName = mm.escapeTags(serverName);
+        String safePlayerName = mm.escapeTags(playerName);
+        String safeMessage = mm.escapeTags(message);
+        if(configManager.isMessageCustom()) {
+            FormatMessage = "AdvancementsMessage|" + messageManager.getPlayerAdvancements()
+                    .replace("{$Player}", safePlayerName)
+                    .replace("{$Server}", safeServerName)
+                    .replace("{$Message}", safeMessage);
+            DiscordMessage = messageManager.getPlayerAdvancementsToDiscord()
+                    .replace("{$Player}", safePlayerName)
+                    .replace("{$Server}", safeServerName)
+                    .replace("{$Message}", safeMessage);
+        }else{
+            FormatMessage = String.format("<yellow>[</yellow><green>%s</green><yellow>]</yellow> <AQUA>%s</AQUA> は 進歩 %s を達成した", serverName, playerName, message);
+            DiscordMessage = String.format("[%s] %s は 進歩 %s を達成した", serverName, playerName, message);
+        }
+        for (RegisteredServer server : server.getAllServers()) {
+            if (registeredServers.contains(server.getServerInfo().getName()) && !server.getServerInfo().getName().equals(serverName)) {
+                chatManager.sendPluginMessage(server, FormatMessage);
+            }
+        }
+
+        if(configManager.isDiscordEnabled()){
+            if (configManager.isMessageCustom()) {
+                discordConnect.sendToOtherChannels(DEFAULT_DISCORD_CHANNEL, DiscordMessage, messageManager.getPlayerAdvancementsToDiscordColor());
+            } else {
+                discordConnect.sendToOtherChannels(DEFAULT_DISCORD_CHANNEL, DiscordMessage, "#FFFF00");
+            }
+        }
     }
 }

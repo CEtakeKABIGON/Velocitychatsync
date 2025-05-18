@@ -20,21 +20,26 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
 
     @Override
     public void onEnable() {
-        // プラグインメッセージチャネルの登録
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "velocitychatsync:main");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "velocitychatsync:main", this);
-        // イベントリスナーの登録
         this.getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
-    public void onPluginMessageReceived(String channel, @NotNull Player player, byte @NotNull [] message) {
+    public void onPluginMessageReceived(String channel, @NotNull Player player, byte[] message) {
         if (!channel.equals("velocitychatsync:main")) return;
 
         String receivedMessage = new String(message, StandardCharsets.UTF_8);
+
         MiniMessage mm = MiniMessage.miniMessage();
         Component formatMessage = mm.deserialize(receivedMessage);
-        Bukkit.broadcast(formatMessage); // Velocity から受け取ったメッセージをブロードキャスト
+
+        getServer().getGlobalRegionScheduler().execute(this, () -> {
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                onlinePlayer.sendMessage(formatMessage);
+            }
+        });
+
     }
 
     @EventHandler
@@ -50,20 +55,33 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         String deathMessage = event.getDeathMessage();
-        sendToVelocity("DeathLog", deathMessage);
+
+        getServer().getGlobalRegionScheduler().execute(this, () -> {
+            sendToVelocity("DeathLog", deathMessage);
+        });
     }
 
     @EventHandler
     public void onAdvancement(PlayerAdvancementDoneEvent event) {
         String advancementKey = event.getAdvancement().getKey().getKey();
+
+        if (advancementKey.startsWith("recipes/")) {return;}
+
         String playerName = event.getPlayer().getName();
         String sendData = advancementKey + "|" + playerName;
+
         sendToVelocity("Advancements", sendData);
     }
 
     private void sendToVelocity(String Action, String data) {
         String message = Action + "|" + data;
         byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
-        Bukkit.getServer().sendPluginMessage(this, "velocitychatsync:main", messageBytes);
+        Player player = Bukkit.getOnlinePlayers().stream().findFirst().orElse(null);
+        if (player != null) {
+            player.sendPluginMessage(this, "velocitychatsync:main", messageBytes);
+        } else {
+            getLogger().warning("No online player to send plugin message: " + message);
+        }
     }
+
 }

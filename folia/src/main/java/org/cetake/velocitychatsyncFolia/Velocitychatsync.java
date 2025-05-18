@@ -15,6 +15,10 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Velocitychatsync extends JavaPlugin implements Listener, PluginMessageListener {
 
@@ -55,6 +59,7 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         String deathMessage = event.getDeathMessage();
+
         getServer().getGlobalRegionScheduler().execute(this, () -> {
             sendToVelocity("DeathLog", deathMessage);
         });
@@ -63,8 +68,12 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
     @EventHandler
     public void onAdvancement(PlayerAdvancementDoneEvent event) {
         String advancementKey = event.getAdvancement().getKey().getKey();
+
+        if (advancementKey.startsWith("recipes/")) {return;}
+
         String playerName = event.getPlayer().getName();
         String sendData = advancementKey + "|" + playerName;
+
         getServer().getGlobalRegionScheduler().execute(this, () -> {
             sendToVelocity("Advancements", sendData);
         });
@@ -73,7 +82,12 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
     private void sendToVelocity(String Action, String data) {
         String message = Action + "|" + data;
         byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
-        Bukkit.getServer().sendPluginMessage(this, "velocitychatsync:main", messageBytes);
+        Player player = Bukkit.getOnlinePlayers().stream().findFirst().orElse(null);
+        if (player != null) {
+            player.sendPluginMessage(this, "velocitychatsync:main", messageBytes);
+        } else {
+            getLogger().warning("No online player to send plugin message: " + message);
+        }
     }
 
 }

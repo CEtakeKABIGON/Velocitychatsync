@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -67,7 +68,7 @@ public class DiscordConnect extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        sendToOtherChannels("dummy", "✅ サーバー が起動しました");
+        messageSendToOtherChannels("dummy", "✅ サーバー が起動しました");
     }
 
     /**
@@ -75,7 +76,6 @@ public class DiscordConnect extends ListenerAdapter {
      */
     public void shutdownDiscordBot() {
         if (jda != null) {
-            sendToOtherChannels("dummy", "🛑 サーバー が停止しました");
             jda.shutdown();
             logger.info("Discord bot shutdown successfully.");
         }
@@ -84,8 +84,9 @@ public class DiscordConnect extends ListenerAdapter {
     /**
      * 指定されたチャンネルIDを除外してメッセージを送信するメソッド
      */
-    public void sendToOtherChannels(String excludedChannelId, String message) {
+    public void sendToOtherChannels(String excludedChannelId, String message, String colorCode) {
         if (jda == null) return;
+        Color color = Color.decode(colorCode);
         List<ConfigManager.DiscordServer> discordServers = configManager.getDiscordServers();
         for (ConfigManager.DiscordServer discordServer : discordServers) {
             String targetChannelId = discordServer.getChannelId();
@@ -94,8 +95,22 @@ public class DiscordConnect extends ListenerAdapter {
                 if (channel != null) {
                     EmbedBuilder embed = new EmbedBuilder()
                             .setDescription(message)
-                            .setColor(Color.BLUE);
+                            .setColor(color);
                     channel.sendMessageEmbeds(embed.build()).queue();
+                }
+            }
+        }
+    }
+
+    public void messageSendToOtherChannels(String excludedChannelId, String message) {
+        if (jda == null) return;
+        List<ConfigManager.DiscordServer> discordServers = configManager.getDiscordServers();
+        for (ConfigManager.DiscordServer discordServer : discordServers) {
+            String targetChannelId = discordServer.getChannelId();
+            if (!targetChannelId.equals(excludedChannelId)) {
+                TextChannel channel = jda.getTextChannelById(targetChannelId);
+                if (channel != null) {
+                    channel.sendMessage(message).queue();
                 }
             }
         }
@@ -124,6 +139,31 @@ public class DiscordConnect extends ListenerAdapter {
 
             String channelId = event.getChannel().getId();
 
+            // ユーザーメンションの置換
+            for (Member mentionedMember : message.getMentions().getMembers()) {
+                String mentionTag = "<@!" + mentionedMember.getId() + ">";
+                String displayName = mentionedMember.getEffectiveName();
+                content = content.replace(mentionTag, "@" + displayName);
+
+                // 一部のクライアントでは <@ID> 形式になる場合もあるので対応
+                mentionTag = "<@" + mentionedMember.getId() + ">";
+                content = content.replace(mentionTag, "@" + displayName);
+            }
+
+
+            // ロールメンションの置換
+            for (Role mentionedRole : message.getMentions().getRoles()) {
+                String mentionTag = "<@&" + mentionedRole.getId() + ">";
+                content = content.replace(mentionTag, "@" + mentionedRole.getName());
+            }
+
+// チャンネルメンションの置換
+            for (GuildChannel mentionedChannel : message.getMentions().getChannels()) {
+                String mentionTag = "<#" + mentionedChannel.getId() + ">";
+                content = content.replace(mentionTag, "#" + mentionedChannel.getName());
+            }
+
+
             // 設定されたチャンネルIDのリストを取得
             List<String> allowedChannelIds = configManager.getDiscordServers().stream()
                     .map(ConfigManager.DiscordServer::getChannelId)
@@ -144,9 +184,9 @@ public class DiscordConnect extends ListenerAdapter {
             // ChatManager のインスタンスが存在する場合のみブロードキャストを実行
             if (chatManager != null) {
                 if (serverUserName.equals("未設定")) {
-                    chatManager.DiscordBroadcastMessage(serverName, userName, content, channelId);
+                    chatManager.discordBroadcastMessage(serverName, userName, content, channelId);
                 }else{
-                    chatManager.DiscordBroadcastMessage(serverName, serverUserName, content, channelId);
+                    chatManager.discordBroadcastMessage(serverName, serverUserName, content, channelId);
                 }
 
             } else {

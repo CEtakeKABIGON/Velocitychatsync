@@ -17,8 +17,10 @@ public class Velocitychatsync {
     private final ProxyServer server;
     private DiscordConnect discordConnect;
     private ChatManager chatManager;
-    private MessageManager messageManager;
+    private final MessageManager messageManager;
     private SystemLogManager systemLogManager;
+    public static final MinecraftChannelIdentifier SETTINGS_CHANNEL =
+            MinecraftChannelIdentifier.create("velocitychatsync", "settings");
 
     @Inject
     public Velocitychatsync(ProxyServer server, Logger logger) {
@@ -26,7 +28,6 @@ public class Velocitychatsync {
         this.logger = logger;
         this.configManager = new ConfigManager(logger);
         this.messageManager = new MessageManager(logger);
-        this.systemLogManager = new SystemLogManager(logger);
     }
 
     @Subscribe
@@ -36,8 +37,13 @@ public class Velocitychatsync {
         // ConfigManager を生成
         this.discordConnect = new DiscordConnect(logger, configManager);
         this.chatManager = new ChatManager(server, logger, configManager, messageManager, discordConnect);
+        this.systemLogManager = new SystemLogManager(server, logger, configManager, messageManager, discordConnect);
         server.getChannelRegistrar().register(MinecraftChannelIdentifier.create("velocitychatsync", "main"));
+        server.getChannelRegistrar().register(SETTINGS_CHANNEL);
 
+        VelocityPlayerSettingsManager settingsManager = new VelocityPlayerSettingsManager(logger);
+        server.getCommandManager().register("vcsync", new VelocitySyncCommand(settingsManager));
+        server.getCommandManager().register("vcsyncadmin", new VelocitySyncAdminCommand(configManager, messageManager, settingsManager, server));
         // イベントリスナーの登録
         server.getEventManager().register(this, discordConnect);
         server.getEventManager().register(this, chatManager);
@@ -56,6 +62,7 @@ public class Velocitychatsync {
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
         if (discordConnect != null) {
+            discordConnect.messageSendToOtherChannels("dummy", "🛑 サーバー が停止しました");
             discordConnect.shutdownDiscordBot();
         }
     }
