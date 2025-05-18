@@ -93,7 +93,7 @@ public class SystemLogManager {
         String safeServerName = mm.escapeTags(serverName);
         String safeMessage = mm.escapeTags(message);
         if(configManager.isMessageCustom()) {
-            FormatMessage = "DeathLog|" + messageManager.getPlayerDeathLog()
+            FormatMessage = messageManager.getPlayerDeathLog()
                     .replace("{$Server}", safeServerName)
                     .replace("{$Message}", safeMessage);
             DiscordMessage = messageManager.getPlayerDeathLogToDiscord()
@@ -124,7 +124,7 @@ public class SystemLogManager {
         String safePlayerName = mm.escapeTags(playerName);
         String safeMessage = mm.escapeTags(message);
         if(configManager.isMessageCustom()) {
-            FormatMessage = "AdvancementsMessage|" + messageManager.getPlayerAdvancements()
+            FormatMessage = messageManager.getPlayerAdvancements()
                     .replace("{$Player}", safePlayerName)
                     .replace("{$Server}", safeServerName)
                     .replace("{$Message}", safeMessage);

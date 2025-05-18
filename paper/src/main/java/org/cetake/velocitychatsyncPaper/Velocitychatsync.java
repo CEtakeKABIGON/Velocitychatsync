@@ -33,12 +33,7 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
 
         MiniMessage mm = MiniMessage.miniMessage();
         Component formatMessage = mm.deserialize(receivedMessage);
-
-        getServer().getGlobalRegionScheduler().execute(this, () -> {
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                onlinePlayer.sendMessage(formatMessage);
-            }
-        });
+        Bukkit.broadcast(formatMessage);
 
     }
 

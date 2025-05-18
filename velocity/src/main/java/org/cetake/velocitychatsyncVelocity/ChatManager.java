@@ -66,13 +66,13 @@ public class ChatManager { // チャンネル名
                 String formattedMessage;
                 if (configManager.isMessageCustom()) {
                     // プレイヤーの入力をエスケープ
-                    formattedMessage = "otherChannelMessage|" + messageManager.getPlayerChatMessage()
+                    formattedMessage = messageManager.getPlayerChatMessage()
                             .replace("{$Server}",serverName)
                             .replace("{$Player}",safePlayerName)
                             .replace("{$Message}",safeMessage);
                 }else {
                     // プレイヤーの入力をエスケープ
-                    formattedMessage = String.format("otherChannelMessage|<yellow>[</yellow><AQUA>%s</AQUA><yellow>]</yellow> <%s> %s", safeServerName, safePlayerName, safeMessage);
+                    formattedMessage = String.format("<yellow>[</yellow><AQUA>%s</AQUA><yellow>]</yellow> <%s> %s", safeServerName, safePlayerName, safeMessage);
                 }
                 sendPluginMessage(server, formattedMessage);
             }
@@ -92,14 +92,14 @@ public class ChatManager { // チャンネル名
             String formattedMessage;
             if (configManager.isMessageCustom()) {
                 // プレイヤーの入力をエスケープ
-                formattedMessage = "DiscordMessage|" + messageManager.getDiscordMessageToPlayer()
+                formattedMessage = messageManager.getDiscordMessageToPlayer()
                         .replace("{$Server}",serverName)
                         .replace("{$Player}",safePlayerName)
                         .replace("{$Message}",safeMessage);
 
             }else {
                 // プレイヤーの入力をエスケープ
-                formattedMessage = String.format("DiscordMessage|<yellow>[</yellow><green>%s</green><yellow>]</yellow> <%s> %s", safeServerName, safePlayerName, safeMessage);
+                formattedMessage = String.format("<yellow>[</yellow><green>%s</green><yellow>]</yellow> <%s> %s", safeServerName, safePlayerName, safeMessage);
             }
             sendPluginMessage(server, formattedMessage);
         }
@@ -113,7 +113,7 @@ public class ChatManager { // チャンネル名
 
             if (configManager.isMessageCustom()) {
                 // プレイヤーの入力をエスケープ
-                formattedMessage = "DiscordMessage|" + messageManager.getDiscordMessageToPlayer()
+                formattedMessage = messageManager.getDiscordMessageToPlayer()
                         .replace("{$Server}",safeServerName)
                         .replace("{$Player}",safePlayerName)
                         .replace("{$Message}",safeMessage);
@@ -133,13 +133,13 @@ public class ChatManager { // チャンネル名
             String message;
             if (configManager.isMessageCustom()) {
 
-                message = "JoinMessage|" + messageManager.getPlayerJoinMessage()
+                message = messageManager.getPlayerJoinMessage()
                         .replace("{$Server}",serverName)
                         .replace("{$Player}",safePlayerName);
 
             }else {
 
-                message = String.format("JoinMessage|<AQUA>%s</AQUA> に <AQUA>%s</AQUA> が入室しました", safeServerName, safePlayerName);
+                message = String.format("<AQUA>%s</AQUA> に <AQUA>%s</AQUA> が入室しました", safeServerName, safePlayerName);
             }
             broadcastToRegisteredServers(message);
         }
@@ -169,11 +169,11 @@ public class ChatManager { // チャンネル名
                 String safePlayerName = mm.escapeTags(playerName);
                 String message;
                 if (configManager.isMessageCustom()){
-                    message = "DisconnectMessage|" + messageManager.getPlayerQuitMessage()
+                    message = messageManager.getPlayerQuitMessage()
                             .replace("{$Player}",safePlayerName);
                     broadcastToRegisteredServers(message);
                 }else {
-                    message = String.format("DisconnectMessage|<yellow>%sが退室しました</yellow>", safePlayerName);
+                    message = String.format("<yellow>%sが退室しました</yellow>", safePlayerName);
                     broadcastToRegisteredServers(message);
                 }
             }
