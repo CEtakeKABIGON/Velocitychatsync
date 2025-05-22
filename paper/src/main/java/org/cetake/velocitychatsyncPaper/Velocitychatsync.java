@@ -18,6 +18,8 @@ import java.nio.charset.StandardCharsets;
 
 public class Velocitychatsync extends JavaPlugin implements Listener, PluginMessageListener {
 
+    MiniMessage mm = MiniMessage.miniMessage();
+
     @Override
     public void onEnable() {
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "velocitychatsync:main");
@@ -27,13 +29,17 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
 
     @Override
     public void onPluginMessageReceived(String channel, @NotNull Player player, byte[] message) {
-        if (!channel.equals("velocitychatsync:main")) return;
-
         String receivedMessage = new String(message, StandardCharsets.UTF_8);
-
-        MiniMessage mm = MiniMessage.miniMessage();
         Component formatMessage = mm.deserialize(receivedMessage);
-        Bukkit.broadcast(formatMessage);
+
+        switch (channel) {
+            case "velocitychatsync:main" ->
+                Bukkit.broadcast(formatMessage);
+
+            case "velocitychatsync:setting" ->
+                PaperPlayerSettingsManager.setPlayerSyncSettings(receivedMessage);
+
+        }
 
     }
 

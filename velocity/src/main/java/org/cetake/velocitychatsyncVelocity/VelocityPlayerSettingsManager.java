@@ -41,7 +41,7 @@ public class VelocityPlayerSettingsManager {
 
     public String createPluginMessage(UUID uuid) {
         PlayerSyncSettings s = getSettings(uuid);
-        return String.format("toggleSetting|%s|chat=%b|advancements=%b|deathLog=%b",
+        return String.format("toggleSetting|%s|%b|%b|%b",
                 uuid, s.chat, s.advancements, s.deathLog);
     }
 
