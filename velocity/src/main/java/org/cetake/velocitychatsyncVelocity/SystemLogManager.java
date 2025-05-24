@@ -93,14 +93,14 @@ public class SystemLogManager {
         String safeServerName = mm.escapeTags(serverName);
         String safeMessage = mm.escapeTags(message);
         if(configManager.isMessageCustom()) {
-            FormatMessage = messageManager.getPlayerDeathLog()
+            FormatMessage = "deathLog|" + messageManager.getPlayerDeathLog()
                     .replace("{$Server}", safeServerName)
                     .replace("{$Message}", safeMessage);
             DiscordMessage = messageManager.getPlayerDeathLogToDiscord()
                     .replace("{$Server}", safeServerName)
                     .replace("{$Message}", safeMessage);
         }else {
-            FormatMessage = String.format("<yellow>[</yellow><green>%s</green><yellow>]</yellow> %s", serverName, message);
+            FormatMessage = String.format("deathLog|<yellow>[</yellow><green>%s</green><yellow>]</yellow> %s", serverName, message);
             DiscordMessage = String.format("[%s] %s", serverName, message);
         }
         for (RegisteredServer server : server.getAllServers()) {
@@ -124,7 +124,7 @@ public class SystemLogManager {
         String safePlayerName = mm.escapeTags(playerName);
         String safeMessage = mm.escapeTags(message);
         if(configManager.isMessageCustom()) {
-            FormatMessage = messageManager.getPlayerAdvancements()
+            FormatMessage = "advancement|" + messageManager.getPlayerAdvancements()
                     .replace("{$Player}", safePlayerName)
                     .replace("{$Server}", safeServerName)
                     .replace("{$Message}", safeMessage);
@@ -133,7 +133,7 @@ public class SystemLogManager {
                     .replace("{$Server}", safeServerName)
                     .replace("{$Message}", safeMessage);
         }else{
-            FormatMessage = String.format("<yellow>[</yellow><green>%s</green><yellow>]</yellow> <AQUA>%s</AQUA> は 進歩 %s を達成した", serverName, playerName, message);
+            FormatMessage = String.format("advancement|<yellow>[</yellow><green>%s</green><yellow>]</yellow> <AQUA>%s</AQUA> は 進歩 %s を達成した", serverName, playerName, message);
             DiscordMessage = String.format("[%s] %s は 進歩 %s を達成した", serverName, playerName, message);
         }
         for (RegisteredServer server : server.getAllServers()) {
@@ -146,7 +146,7 @@ public class SystemLogManager {
             if (configManager.isMessageCustom()) {
                 discordConnect.sendToOtherChannels(DEFAULT_DISCORD_CHANNEL, DiscordMessage, messageManager.getPlayerAdvancementsToDiscordColor());
             } else {
-                discordConnect.sendToOtherChannels(DEFAULT_DISCORD_CHANNEL, DiscordMessage, "#FFFF00");
+                discordConnect.sendToOtherChannels(DEFAULT_DISCORD_CHANNEL, DiscordMessage, "#000000");
             }
         }
     }

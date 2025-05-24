@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 
 import javax.inject.Inject;
 
-@Plugin(id = "velocitychatsync", name = "VelocityChatSync", version = "2.0")
+@Plugin(id = "velocitychatsync", name = "VelocityChatSync", version = "4.0")
 public class Velocitychatsync {
     private final Logger logger;
     private final ConfigManager configManager;

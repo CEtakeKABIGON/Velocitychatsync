@@ -10,9 +10,20 @@ import java.util.*;
 public class VelocityPlayerSettingsManager {
 
     public static class PlayerSyncSettings {
-        public boolean chat = true;
-        public boolean advancements = true;
-        public boolean deathLog = true;
+        public boolean chat;
+        public boolean advancements;
+        public boolean deathLog;
+
+        public PlayerSyncSettings() {
+            this(true, true, true); // デフォルト値
+        }
+
+        public PlayerSyncSettings(boolean chat, boolean advancements, boolean deathLog) {
+            this.chat = chat;
+            this.advancements = advancements;
+            this.deathLog = deathLog;
+        }
+
     }
 
     private final Map<UUID, PlayerSyncSettings> playerSettings = new HashMap<>();

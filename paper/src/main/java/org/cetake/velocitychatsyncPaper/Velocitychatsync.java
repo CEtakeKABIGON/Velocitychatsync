@@ -24,23 +24,63 @@ public class Velocitychatsync extends JavaPlugin implements Listener, PluginMess
     public void onEnable() {
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "velocitychatsync:main");
         this.getServer().getMessenger().registerIncomingPluginChannel(this, "velocitychatsync:main", this);
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "velocitychatsync:settings");
+        this.getServer().getMessenger().registerIncomingPluginChannel(this, "velocitychatsync:settings", this);
         this.getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
     public void onPluginMessageReceived(String channel, @NotNull Player player, byte[] message) {
         String receivedMessage = new String(message, StandardCharsets.UTF_8);
-        Component formatMessage = mm.deserialize(receivedMessage);
-
         switch (channel) {
             case "velocitychatsync:main" ->
-                Bukkit.broadcast(formatMessage);
+                messageBroadcast(receivedMessage);
 
-            case "velocitychatsync:setting" ->
+            case "velocitychatsync:settings" ->
                 PaperPlayerSettingsManager.setPlayerSyncSettings(receivedMessage);
 
+            default -> throw new IllegalStateException("Unexpected value: " + channel);
         }
 
+    }
+
+    private void messageBroadcast(String message) {
+        String[] parts = message.split("\\|", 2);
+
+        Component formatMessage = mm.deserialize(message);
+        if (parts.length == 2) {
+            formatMessage = mm.deserialize(parts[1]);
+        }
+
+        switch (parts[0]) {
+            case "chat" -> {
+                for(Player player : Bukkit.getOnlinePlayers()){
+                    if(PaperPlayerSettingsManager.getChatEnable(player.getUniqueId())){
+                        player.sendMessage(formatMessage);
+                    }
+                }
+            }
+
+            case "deathLog" -> {
+                for(Player player : Bukkit.getOnlinePlayers()){
+                    if(PaperPlayerSettingsManager.getDeathLogEnable(player.getUniqueId())){
+                        player.sendMessage(formatMessage);
+                    }
+                }
+            }
+
+            case "advancement" -> {
+                for(Player player : Bukkit.getOnlinePlayers()){
+                    if(PaperPlayerSettingsManager.getAdvancementsEnable(player.getUniqueId())){
+                        player.sendMessage(formatMessage);
+                    }
+                }
+            }
+
+            default -> {
+                Bukkit.broadcast(formatMessage);
+            }
+        }
     }
 
     @EventHandler

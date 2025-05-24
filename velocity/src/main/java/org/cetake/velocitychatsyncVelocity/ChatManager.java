@@ -66,13 +66,13 @@ public class ChatManager { // チャンネル名
                 String formattedMessage;
                 if (configManager.isMessageCustom()) {
                     // プレイヤーの入力をエスケープ
-                    formattedMessage = messageManager.getPlayerChatMessage()
+                    formattedMessage = "chat|" + messageManager.getPlayerChatMessage()
                             .replace("{$Server}",serverName)
                             .replace("{$Player}",safePlayerName)
                             .replace("{$Message}",safeMessage);
                 }else {
                     // プレイヤーの入力をエスケープ
-                    formattedMessage = String.format("<yellow>[</yellow><AQUA>%s</AQUA><yellow>]</yellow> <%s> %s", safeServerName, safePlayerName, safeMessage);
+                    formattedMessage = String.format("chat|<yellow>[</yellow><AQUA>%s</AQUA><yellow>]</yellow> <%s> %s", safeServerName, safePlayerName, safeMessage);
                 }
                 sendPluginMessage(server, formattedMessage);
             }
